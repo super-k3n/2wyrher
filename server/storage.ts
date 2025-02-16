@@ -101,11 +101,11 @@ export class DatabaseStorage implements IStorage {
     const userEvaluations = await db
       .select({
         actressId: evaluations.actressId,
-        avgRating: sql<number>`(${evaluations.looksRating} + ${evaluations.sexyRating} + ${evaluations.elegantRating}) / 3.0`,
+        avgRating: sql<number>`(${evaluations.looksRating} + ${evaluations.sexyRating} + ${evaluations.elegantRating}) / 3.0 as avg_rating`,
       })
       .from(evaluations)
       .where(eq(evaluations.userId, userId))
-      .orderBy(sql`avgRating DESC`)
+      .orderBy(sql`avg_rating DESC`)
       .limit(5);
 
     const topActresses = await Promise.all(
