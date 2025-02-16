@@ -9,15 +9,18 @@ import { Twitter } from "lucide-react";
 export default function ProfilePage() {
   const { username } = useParams();
 
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading, isError } = useQuery({
     queryKey: [`/api/users/${username}`],
     queryFn: async () => {
       const res = await fetch(`/api/users/${username}`);
+      if (!res.ok) throw new Error('Failed to fetch profile');
       return res.json();
     },
   });
 
-  if (!profile) return <div className="container mx-auto py-8">Loading...</div>;
+  if (isLoading) return <div className="container mx-auto py-8">Loading...</div>;
+  if (isError) return <div className="container mx-auto py-8">Error loading profile</div>;
+  if (!profile) return <div className="container mx-auto py-8">No profile data</div>;
 
   const { topActresses = [], evaluatedActresses = [] } = profile;
 
