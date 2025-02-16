@@ -8,11 +8,16 @@ import { Twitter } from "lucide-react";
 
 export default function ProfilePage() {
   const { username } = useParams();
+  const { user } = useAuth();
+  
+  // プロフィールページでユーザー名が指定されていない場合は、
+  // ログインユーザーのプロフィールを表示
+  const targetUsername = username || user?.username;
 
   const { data: profile, isLoading, isError } = useQuery({
-    queryKey: [`/api/users/${username}`],
+    queryKey: [`/api/users/${targetUsername}`],
     queryFn: async () => {
-      const res = await fetch(`/api/users/${username}`);
+      const res = await fetch(`/api/users/${targetUsername}`);
       if (!res.ok) throw new Error('Failed to fetch profile');
       return res.json();
     },
