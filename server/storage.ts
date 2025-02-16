@@ -104,9 +104,9 @@ export class DatabaseStorage implements IStorage {
       .where(eq(evaluations.actressId, actressId));
 
     return {
-      avgLooks: result?.avgLooks ?? 0,
-      avgSexy: result?.avgSexy ?? 0,
-      avgElegant: result?.avgElegant ?? 0,
+      avgLooks: Number(result?.avgLooks) || 0,
+      avgSexy: Number(result?.avgSexy) || 0,
+      avgElegant: Number(result?.avgElegant) || 0,
     };
   }
 }
