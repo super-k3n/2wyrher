@@ -98,7 +98,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const evaluations = await storage.getUserEvaluations(user.id);
+    const [evaluations, topActresses] = await Promise.all([
+      storage.getUserEvaluations(user.id),
+      storage.getUserTopActresses(user.id),
+    ]);
+
     const evaluatedActresses = await Promise.all(
       evaluations.map(async (evaluation) => {
         const actress = await storage.getActress(evaluation.actressId);
@@ -111,19 +115,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       })
     );
 
-    // TOP5を計算
-    const topActresses = evaluatedActresses
-      .sort((a, b) => {
-        const aTotal = (a.evaluations[0].looksRating + a.evaluations[0].sexyRating + a.evaluations[0].elegantRating) / 3;
-        const bTotal = (b.evaluations[0].looksRating + b.evaluations[0].sexyRating + b.evaluations[0].elegantRating) / 3;
-        return bTotal - aTotal;
-      })
-      .slice(0, 5);
-
     res.json({
       ...user,
-      topActresses: topActresses || [],
-      evaluatedActresses: evaluatedActresses || [],
+      topActresses,
+      evaluatedActresses,
     });
   });
 
