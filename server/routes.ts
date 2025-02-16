@@ -10,7 +10,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all actresses
   app.get("/api/actresses", async (_req, res) => {
     const actresses = await storage.getActresses();
-    
+
     // Get evaluations and average ratings for each actress
     const actressesWithData = await Promise.all(
       actresses.map(async (actress) => {
@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
       })
     );
-    
+
     res.json(actressesWithData);
   });
 
@@ -84,6 +84,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const evaluation = await storage.createEvaluation(parseResult.data);
     res.status(201).json(evaluation);
+  });
+
+  app.get("/api/user", (req, res) => {
+    if (!req.isAuthenticated()) return res.sendStatus(401);
+    res.json(req.user);
+  });
+
+  // Get user profile with evaluations
+  app.get("/api/users/:username", async (req, res) => {
+    const user = await storage.getUserByUsername(req.params.username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const [evaluations, topActresses] = await Promise.all([
+      storage.getUserEvaluations(user.id),
+      storage.getUserTopActresses(user.id),
+    ]);
+
+    const evaluatedActresses = await Promise.all(
+      evaluations.map(async (evaluation) => {
+        const actress = await storage.getActress(evaluation.actressId);
+        const averageRatings = await storage.getAverageRatings(evaluation.actressId);
+        return {
+          ...actress!,
+          evaluations: [evaluation],
+          averageRatings,
+        };
+      })
+    );
+
+    res.json({
+      ...user,
+      topActresses,
+      evaluatedActresses,
+    });
   });
 
   const httpServer = createServer(app);

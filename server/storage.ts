@@ -89,6 +89,39 @@ export class DatabaseStorage implements IStorage {
     return evaluation;
   }
 
+  async getUserEvaluations(userId: number): Promise<(Evaluation & { user: User })[]> {
+    return await db
+      .select({
+        ...evaluations,
+        user: users,
+      })
+      .from(evaluations)
+      .where(eq(evaluations.userId, userId))
+      .leftJoin(users, eq(evaluations.userId, users.id))
+      .orderBy(evaluations.createdAt);
+  }
+
+  async getUserTopActresses(userId: number): Promise<(Actress & { rating: number })[]> {
+    const userEvaluations = await db
+      .select({
+        actressId: evaluations.actressId,
+        avgRating: sql<number>`(${evaluations.looksRating} + ${evaluations.sexyRating} + ${evaluations.elegantRating}) / 3.0 as avg_rating`,
+      })
+      .from(evaluations)
+      .where(eq(evaluations.userId, userId))
+      .orderBy(sql`avg_rating DESC`)
+      .limit(5);
+
+    const topActresses = await Promise.all(
+      userEvaluations.map(async (evaluation) => {
+        const actress = await this.getActress(evaluation.actressId);
+        return { ...actress!, rating: Number(evaluation.avgRating) };
+      })
+    );
+
+    return topActresses;
+  }
+
   async getAverageRatings(actressId: number): Promise<{
     avgLooks: number;
     avgSexy: number;
