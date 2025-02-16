@@ -17,7 +17,9 @@ export default function ProfilePage() {
     },
   });
 
-  if (!profile) return null;
+  if (!profile) return <div className="container mx-auto py-8">Loading...</div>;
+
+  const { topActresses = [], evaluatedActresses = [] } = profile;
 
   return (
     <div className="container mx-auto py-8 space-y-6">
