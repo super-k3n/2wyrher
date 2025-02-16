@@ -100,12 +100,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     const evaluations = await storage.getUserEvaluations(user.id);
     const evaluatedActresses = await Promise.all(
-      evaluations.map(async (eval) => {
-        const actress = await storage.getActress(eval.actressId);
-        const averageRatings = await storage.getAverageRatings(eval.actressId);
+      evaluations.map(async (evaluation) => {
+        const actress = await storage.getActress(evaluation.actressId);
+        const averageRatings = await storage.getAverageRatings(evaluation.actressId);
         return {
           ...actress!,
-          evaluations: [eval],
+          evaluations: [evaluation],
           averageRatings,
         };
       })
