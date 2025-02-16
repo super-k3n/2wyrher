@@ -10,7 +10,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all actresses
   app.get("/api/actresses", async (_req, res) => {
     const actresses = await storage.getActresses();
-    res.json(actresses);
+    
+    // Get evaluations and average ratings for each actress
+    const actressesWithData = await Promise.all(
+      actresses.map(async (actress) => {
+        const evaluations = await storage.getEvaluations(actress.id);
+        const averageRatings = await storage.getAverageRatings(actress.id);
+        return {
+          ...actress,
+          evaluations,
+          averageRatings,
+        };
+      })
+    );
+    
+    res.json(actressesWithData);
   });
 
   // Get a specific actress with evaluations
