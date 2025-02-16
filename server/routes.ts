@@ -122,8 +122,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     res.json({
       ...user,
-      topActresses,
-      evaluatedActresses,
+      topActresses: topActresses || [],
+      evaluatedActresses: evaluatedActresses || [],
     });
   });
 
