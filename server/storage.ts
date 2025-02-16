@@ -89,11 +89,15 @@ export class DatabaseStorage implements IStorage {
     return evaluation;
   }
 
-  async getUserEvaluations(userId: number): Promise<Evaluation[]> {
+  async getUserEvaluations(userId: number): Promise<(Evaluation & { user: User })[]> {
     return await db
-      .select()
+      .select({
+        ...evaluations,
+        user: users,
+      })
       .from(evaluations)
       .where(eq(evaluations.userId, userId))
+      .leftJoin(users, eq(evaluations.userId, users.id))
       .orderBy(evaluations.createdAt);
   }
 
