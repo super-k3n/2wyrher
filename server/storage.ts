@@ -89,6 +89,14 @@ export class DatabaseStorage implements IStorage {
     return evaluation;
   }
 
+  async getUserEvaluations(userId: number): Promise<Evaluation[]> {
+    return await db
+      .select()
+      .from(evaluations)
+      .where(eq(evaluations.userId, userId))
+      .orderBy(evaluations.createdAt);
+  }
+
   async getAverageRatings(actressId: number): Promise<{
     avgLooks: number;
     avgSexy: number;

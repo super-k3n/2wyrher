@@ -7,12 +7,14 @@ import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
+import ProfilePage from "./pages/profile-page";
 
 function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
+      <Route path="/users/:username" component={ProfilePage} />
       <Route component={NotFound} />
     </Switch>
   );
