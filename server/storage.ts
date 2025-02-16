@@ -109,9 +109,9 @@ export class DatabaseStorage implements IStorage {
       .limit(5);
 
     const topActresses = await Promise.all(
-      userEvaluations.map(async (eval) => {
-        const actress = await this.getActress(eval.actressId);
-        return { ...actress!, rating: Number(eval.avgRating) };
+      userEvaluations.map(async (evaluation) => {
+        const actress = await this.getActress(evaluation.actressId);
+        return { ...actress!, rating: Number(evaluation.avgRating) };
       })
     );
 
